@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using Tutorial6.Model;
+using Tutorial6.Model.Dto;
 
 namespace Tutorial6.Controller;
 
@@ -61,5 +63,28 @@ public class AnimalsController : ControllerBase
         }
 
         return Ok(animals);
+    }
+
+    [HttpPost]
+    public IActionResult AddAnimal(CreateAnimalDto createAnimalDto)
+    {
+        // Otwieramy połączenie
+        using var connection = new SqlConnection(_configuration.GetConnectionString("Default"));
+        connection.Open();
+
+        // Definiujemy command
+        using var command = new SqlCommand();
+        command.Connection = connection;
+        command.CommandText = $"INSERT INTO Animal VALUES (@animalName, @animalDescription, @animalCategory, @animalArea)";
+        command.Parameters.AddWithValue("@animalName", createAnimalDto.Name);
+        command.Parameters.AddWithValue("@animalDescription",
+            createAnimalDto.Description.IsNullOrEmpty() ? "" : createAnimalDto.Description);
+        command.Parameters.AddWithValue("@animalCategory", createAnimalDto.Category);
+        command.Parameters.AddWithValue("@animalArea", createAnimalDto.Area);
+
+        // Wykonujemy zapytanie
+        command.ExecuteReader();
+
+        return Created("api/animals", null);
     }
 }
