@@ -113,7 +113,7 @@ public class AnimalsController : ControllerBase
     }
 
     [HttpDelete("{idAnimal}")]
-    public IActionResult DeleteAnimals(int idAnimal)
+    public IActionResult DeleteAnimal(int idAnimal)
     {
         // Otwieramy połączenie
         using var connection = new SqlConnection(_configuration.GetConnectionString("Default"));
